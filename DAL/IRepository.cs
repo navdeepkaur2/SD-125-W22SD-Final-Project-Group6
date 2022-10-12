@@ -3,6 +3,8 @@
 public interface IRepository<T>  {
     void Create(T entity);
 
+    T Find(int id);
+
     T Find(Func<T, bool> predicate);
 
     ICollection<T> GetAll();
