@@ -14,5 +14,11 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             _context = context;
             _userManager = userManager;
         }
+
+        async Task<List<ApplicationUser>> GetUsersByRole(string role)
+        {
+            IList<ApplicationUser> users = await _userManager.GetUsersInRoleAsync(role);
+            return users.ToList();
+        }
     }
 }
