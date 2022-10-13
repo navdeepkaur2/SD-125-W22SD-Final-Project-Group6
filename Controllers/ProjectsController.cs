@@ -233,15 +233,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
         // GET: Projects/Delete/5
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
-            if (id == null || _context.Projects == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var project = await _context.Projects
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Project? project = _projectsBusinessLogic.FindById((int)id);
+
             if (project == null)
             {
                 return NotFound();
