@@ -47,7 +47,7 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
         }
 
         public async Task Update(Ticket ticket)
-        {           
+        {
             _ticketsRepository.Update(ticket);
             _ticketsRepository.Save();
         }
@@ -75,6 +75,25 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
 
             _commentsRepository.Create(newComment);
             _commentsRepository.Save();
+        }
+
+        public async Task AddToWatchers(string userId, int ticketId)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(userId);
+            Ticket? ticket = _ticketsRepository.FindById(ticketId);
+
+            if (ticket == null)
+            {
+                throw new ArgumentException("ticket is not found");
+            }
+
+            TicketWatcher ticketWatcher = new TicketWatcher();
+            ticketWatcher.Ticket = ticket;
+            ticketWatcher.Watcher = user;
+
+            ticket.TicketWatchers.Add(ticketWatcher);
+            _ticketsRepository.Update(ticket);
+            _ticketsRepository.Save();
         }
     }
 }

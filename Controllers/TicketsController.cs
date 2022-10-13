@@ -239,24 +239,16 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> AddToWatchers(int id)
+        public async Task<IActionResult> AddToWatchers(int? id)
         {
             if (id != null)
             {
                 try
                 {
-                    TicketWatcher newTickWatch = new TicketWatcher();
-                    string userName = User.Identity.Name;
-                    ApplicationUser user = _context.Users.First(u => u.UserName == userName);
-                    Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
+                    ApplicationUser user = await _userBusinessLogic.FindByName(User.Identity.Name);
 
-                    newTickWatch.Ticket = ticket;
-                    newTickWatch.Watcher = user;
-                    user.TicketWatching.Add(newTickWatch);
-                    ticket.TicketWatchers.Add(newTickWatch);
-                    _context.Add(newTickWatch);
+                    await _ticketsBusinessLogic.AddToWatchers(user.Id, (int)id);
 
-                    await _context.SaveChangesAsync();
                     return RedirectToAction("Details", new { id });
 
                 }
@@ -265,6 +257,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                     return RedirectToAction("Error", "Home");
                 }
             }
+
             return RedirectToAction("Index");
         }
 
