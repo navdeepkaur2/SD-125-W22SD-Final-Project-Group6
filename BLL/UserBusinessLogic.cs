@@ -12,6 +12,11 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             _userManager = userManager;
         }
 
+        public async Task<ApplicationUser> FindById(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
         public async Task<ApplicationUser> FindByName(string name)
         {
             return await _userManager.FindByNameAsync(name);

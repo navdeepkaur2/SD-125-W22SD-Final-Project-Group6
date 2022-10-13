@@ -141,9 +141,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 return NotFound();
             }
-            Ticket currTicket = await _context.Tickets.Include(t => t.Owner).FirstAsync(t => t.Id == ticketId);
-            ApplicationUser currUser = await _context.Users.FirstAsync(u => u.Id == id);
-            //To be fixed ASAP
+
+            Ticket? currTicket = _ticketsBusinessLogic.FindById(ticketId);
+            ApplicationUser currUser = await _userBusinessLogic.FindById(id);
+
             currTicket.Owner = currUser;
             await _context.SaveChangesAsync();
 
@@ -167,24 +168,21 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 try
                 {
-                    ApplicationUser currUser = _context.Users.FirstOrDefault(u => u.Id == userId);
-                    ticket.Owner = currUser;
-                    _context.Update(ticket);
-                    await _context.SaveChangesAsync();
+                    await _ticketsBusinessLogic.Update(ticket, userId);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TicketExists(ticket.Id))
+                    if (!_ticketsBusinessLogic.Exists(ticket.Id))
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Edit), new { id = ticket.Id });
             }
+
             return View(ticket);
         }
 
@@ -378,11 +376,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Projects");
-        }
-
-        private bool TicketExists(int id)
-        {
-            return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

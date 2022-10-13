@@ -43,5 +43,20 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
         {
             return _ticketsRepository.GetAll().ToList();
         }
+
+        public async Task Update(Ticket ticket, string userId)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(userId);
+            ticket.Owner = user;
+
+            _ticketsRepository.Update(ticket);
+            _ticketsRepository.Save();
+        }
+
+        public bool Exists(int id)
+        {
+            Ticket? ticket = _ticketsRepository.FindById(id);
+            return ticket != null;
+        }
     }
 }
