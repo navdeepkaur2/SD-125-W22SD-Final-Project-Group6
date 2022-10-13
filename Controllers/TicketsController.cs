@@ -168,7 +168,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 try
                 {
-                    await _ticketsBusinessLogic.Update(ticket, userId);
+                    ApplicationUser user = await _userBusinessLogic.FindById(userId);
+                    ticket.Owner = user;
+                    await _ticketsBusinessLogic.Update(ticket);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -209,23 +211,31 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> UpdateHrs(int id, int hrs)
+        public async Task<IActionResult> UpdateHrs(int? id, int? hrs)
         {
-            if (id != null || hrs != null)
+            if (id != null && hrs != null)
             {
                 try
                 {
-                    Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
-                    ticket.RequiredHours = hrs;
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("Details", new { id });
+                    Ticket? ticket = _ticketsBusinessLogic.FindById((int)id);
 
+                    if (ticket == null)
+                    {
+                        throw new ArgumentException("ticket is not found");
+                    }
+
+                    ticket.RequiredHours = (int)hrs;
+
+                    await _ticketsBusinessLogic.Update(ticket);
+
+                    return RedirectToAction("Details", new { id });
                 }
                 catch (Exception ex)
                 {
                     return RedirectToAction("Error", "Home");
                 }
             }
+
             return RedirectToAction("Index");
         }
 
