@@ -4,11 +4,11 @@ public interface IRepository<T>
 {
     void Create(T entity);
 
-    T Get(int id);
+    T? FindById(int id);
 
-    T Get(Func<T, bool> predicate);
+    T? Find(Func<T, bool> predicate);
 
-    ICollection<T> GetList(Func<T, bool> predicate);
+    ICollection<T> FindList(Func<T, bool> predicate);
 
     ICollection<T> GetAll();
 
