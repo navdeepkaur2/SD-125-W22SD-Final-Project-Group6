@@ -6,12 +6,10 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
 {
     public class UserBusinessLogic
     {
-        public ApplicationDbContext _context;
         public UserManager<ApplicationUser> _userManager;
 
-        public UserBusinessLogic(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public UserBusinessLogic(UserManager<ApplicationUser> userManager)
         {
-            _context = context;
             _userManager = userManager;
         }
 
