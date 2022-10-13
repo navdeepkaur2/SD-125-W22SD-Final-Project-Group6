@@ -12,6 +12,11 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             _projectsRepository = projectsRepository;
         }
 
+        public Project? FindById(int id)
+        {
+            return _projectsRepository.FindById(id);
+        }
+
         public List<Project> FindByPage(int page = 1, int count = 10)
         {
             return _projectsRepository.FindList((page - 1) * count, count).ToList();

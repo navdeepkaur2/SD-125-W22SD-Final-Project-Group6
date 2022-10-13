@@ -107,15 +107,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         }
 
         // GET: Projects/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
-            if (id == null || _context.Projects == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var project = await _context.Projects
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Project? project = _projectsBusinessLogic.FindById((int)id);
+
             if (project == null)
             {
                 return NotFound();
