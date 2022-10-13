@@ -28,7 +28,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             _context = context;
             _userBusinessLogic = new UserBusinessLogic(userManager);
             _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
-            _ticketsBusinessLogic = new TicketsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
+            _ticketsBusinessLogic = new TicketsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context), new CommentsRepository(context));
         }
 
         // GET: Tickets
@@ -187,34 +187,25 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CommentTask(int TaskId, string? TaskText)
+        public async Task<IActionResult> CommentTask(int? TaskId, string? TaskText)
         {
-            if (TaskId != null || TaskText != null)
+            if (TaskId != null && TaskText != null)
             {
                 try
                 {
-                    Comment newComment = new Comment();
-                    string userName = User.Identity.Name;
-                    ApplicationUser user = _context.Users.First(u => u.UserName == userName);
-                    Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == TaskId);
+                    ApplicationUser user = await _userBusinessLogic.FindByName(User.Identity.Name);
 
-                    newComment.CreatedBy = user;
-                    newComment.Description = TaskText;
-                    newComment.Ticket = ticket;
-                    user.Comments.Add(newComment);
-                    _context.Comments.Add(newComment);
-                    ticket.Comments.Add(newComment);
+                    await _ticketsBusinessLogic.AddComment(user.Id, (int)TaskId, TaskText);
 
-                    int Id = TaskId;
-                    await _context.SaveChangesAsync();
+                    int Id = (int)TaskId;
                     return RedirectToAction("Details", new { Id });
-
                 }
                 catch (Exception ex)
                 {
                     return RedirectToAction("Error", "Home");
                 }
             }
+
             return RedirectToAction("Index");
         }
 

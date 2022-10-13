@@ -9,12 +9,14 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ProjectsRepository _projectsRepository;
         private readonly TicketsRepository _ticketsRepository;
+        private readonly CommentsRepository _commentsRepository;
 
-        public TicketsBusinessLogic(UserManager<ApplicationUser> userManager, ProjectsRepository projectsRepository, TicketsRepository ticketsRepository)
+        public TicketsBusinessLogic(UserManager<ApplicationUser> userManager, ProjectsRepository projectsRepository, TicketsRepository ticketsRepository, CommentsRepository commentsRepository)
         {
             _userManager = userManager;
             _projectsRepository = projectsRepository;
             _ticketsRepository = ticketsRepository;
+            _commentsRepository = commentsRepository;
         }
 
         public async Task Create(Ticket ticket, int projectId, string userId)
@@ -57,6 +59,25 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
         {
             Ticket? ticket = _ticketsRepository.FindById(id);
             return ticket != null;
+        }
+
+        public async Task AddComment(string userId, int ticketId, string description)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(userId);
+            Ticket? ticket = _ticketsRepository.FindById(ticketId);
+
+            if (ticket == null)
+            {
+                throw new ArgumentException("ticketId does not exist");
+            }
+
+            Comment newComment = new Comment();
+            newComment.CreatedBy = user;
+            newComment.Description = description;
+            newComment.Ticket = ticket;
+
+            _commentsRepository.Create(newComment);
+            _commentsRepository.Save();
         }
     }
 }
