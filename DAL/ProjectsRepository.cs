@@ -92,6 +92,21 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
             _context.Projects.Remove(entity);
         }
 
+        public int Count()
+        {
+            return _context.Projects.Count();
+        }
+
+        public void RemoveAssignedUser(int projectId, string userId)
+        {
+            List<UserProject> userProjects = _context.UserProjects.Where(up => up.ProjectId == projectId && up.UserId == userId).ToList();
+
+            foreach (UserProject userProject in userProjects)
+            {
+                _context.UserProjects.Remove(userProject);
+            }
+        }
+
         public void Save()
         {
             _context.SaveChanges();

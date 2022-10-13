@@ -9,11 +9,13 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ProjectsRepository _projectsRepository;
+        private readonly TicketsRepository _ticketsRepository;
 
-        public ProjectsBusinessLogic(UserManager<ApplicationUser> userManager, ProjectsRepository projectsRepository)
+        public ProjectsBusinessLogic(UserManager<ApplicationUser> userManager, ProjectsRepository projectsRepository, TicketsRepository ticketsRepository)
         {
             _userManager = userManager;
             _projectsRepository = projectsRepository;
+            _ticketsRepository = ticketsRepository;
         }
 
         public async Task Create(ClaimsPrincipal user, Project project, List<string> assignedUserIds)
@@ -44,6 +46,36 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
         public List<Project> FindByPage(int page = 1, int count = 10)
         {
             return _projectsRepository.FindList((page - 1) * count, count).ToList();
+        }
+
+        public void Delete(int projectId)
+        {
+            Project? project = _projectsRepository.FindById(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException("projectId does not exist");
+            }
+
+            foreach (Ticket ticket in project.Tickets)
+            {
+                _ticketsRepository.Delete(ticket);
+            }
+            _ticketsRepository.Save();
+
+            foreach (UserProject userProject in project.AssignedTo)
+            {
+                _projectsRepository.RemoveAssignedUser((int)userProject.ProjectId, (string)userProject.UserId);
+            }
+            _projectsRepository.Save();
+
+            _projectsRepository.Delete(project);
+            _projectsRepository.Save();
+        }
+
+        public int Count()
+        {
+            return _projectsRepository.Count();
         }
 
         public bool Exists(int id)
@@ -98,16 +130,7 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
 
         public void RemoveAssignedUser(int projectId, string userId)
         {
-            Project? project = _projectsRepository.FindById(projectId);
-
-            if (project == null)
-            {
-                throw new ArgumentException("projectId does not exist");
-            }
-
-            project.AssignedTo = project.AssignedTo.Where(up => !(up.UserId == userId && up.ProjectId == projectId)).ToList();
-
-            _projectsRepository.Update(project);
+            _projectsRepository.RemoveAssignedUser(projectId, userId);
             _projectsRepository.Save();
         }
     }

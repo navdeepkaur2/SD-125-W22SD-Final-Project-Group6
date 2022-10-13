@@ -30,7 +30,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             _context = context;
             _users = userManager;
             _userBusinessLogic = new UserBusinessLogic(userManager);
-            _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context));
+            _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
         }
 
         // GET: Projects
@@ -254,33 +254,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            if (_context.Projects == null)
+            if (_projectsBusinessLogic.Count() == 0)
             {
-                return Problem("Entity set 'ApplicationDbContext.Projects'  is null.");
-            }
-            var project = await _context.Projects.Include(p => p.Tickets).FirstAsync(p => p.Id == id);
-            if (project != null)
-            {
-                List<Ticket> tickets = project.Tickets.ToList();
-                tickets.ForEach(ticket =>
-                {
-                    _context.Tickets.Remove(ticket);
-                });
-                await _context.SaveChangesAsync();
-                List<UserProject> userProjects = _context.UserProjects.Where(up => up.ProjectId == project.Id).ToList();
-                userProjects.ForEach(userProj =>
-                {
-                    _context.UserProjects.Remove(userProj);
-                });
-
-                _context.Projects.Remove(project);
-
-
+                return Problem("There is no projects");
             }
 
-            await _context.SaveChangesAsync();
+            _projectsBusinessLogic.Delete(id);
+
             return RedirectToAction(nameof(Index));
         }
     }
