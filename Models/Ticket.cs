@@ -31,7 +31,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Models
         public Priority? TicketPriority { get; set; }
         public bool? Completed { get; set; } = false;
         public ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
-        public ICollection<TicketWatcher>? TicketWatchers { get; set; } = new HashSet<TicketWatcher>();
+        public ICollection<TicketWatcher> TicketWatchers { get; set; } = new HashSet<TicketWatcher>();
 
         public enum Priority
         {

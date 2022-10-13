@@ -13,7 +13,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Models
         public string ProjectName { get; set; }
         public ApplicationUser? CreatedBy { get; set; }
         public ICollection<UserProject> AssignedTo { get; set; } = new HashSet<UserProject>();
-        public ICollection<Ticket>? Tickets { get; set; } = new HashSet<Ticket>();
+        public ICollection<Ticket> Tickets { get; set; } = new HashSet<Ticket>();
 
     }
 }

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SD_340_W22SD_Final_Project_Group6.BLL;
+using SD_340_W22SD_Final_Project_Group6.DAL;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using X.PagedList;
@@ -20,133 +22,88 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _users;
+        private readonly UserBusinessLogic _userBusinessLogic;
+        private readonly ProjectsBusinessLogic _projectsBusinessLogic;
 
         public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> users)
         {
             _context = context;
             _users = users;
+            _userBusinessLogic = new UserBusinessLogic(users);
+            _projectsBusinessLogic = new ProjectsBusinessLogic(new ProjectsRepository(context));
         }
+
         // GET: Projects
         [Authorize]
-        public async Task<IActionResult> Index(string? sortOrder, int? page, bool? sort, string? userId)
+        public async Task<IActionResult> Index(string? sortOrder = null, int page = 1, bool sort = false, string? userId = null)
         {
-            List<Project> SortedProjs = new List<Project>();
-            List<ApplicationUser> allUsers = (List<ApplicationUser>)await _users.GetUsersInRoleAsync("Developer");
-
+            List<ApplicationUser> developers = await _userBusinessLogic.GetUsersByRole("Developer");
             List<SelectListItem> users = new List<SelectListItem>();
-            allUsers.ForEach(au =>
+            developers.ForEach(au =>
             {
                 users.Add(new SelectListItem(au.UserName, au.Id.ToString()));
             });
             ViewBag.Users = users;
+
+            List<Project> projects = _projectsBusinessLogic.FindByPage(page);
             switch (sortOrder)
             {
                 case "Priority":
-                    if (sort == true)
+                    projects.ForEach(p =>
                     {
-                        SortedProjs =
-                        await _context.Projects
-                        .Include(p => p.CreatedBy)
-                        .Include(p => p.AssignedTo)
-                        .ThenInclude(at => at.ApplicationUser)
-                        .Include(p => p.Tickets.OrderByDescending(t => t.TicketPriority))
-                        .ThenInclude(t => t.Owner)
-                        .ToListAsync();
-                    }
-                    else
-                    {
-                        SortedProjs =
-                        await _context.Projects
-                        .Include(p => p.CreatedBy)
-                        .Include(p => p.AssignedTo)
-                        .ThenInclude(at => at.ApplicationUser)
-                        .Include(p => p.Tickets.OrderBy(t => t.TicketPriority))
-                        .ThenInclude(t => t.Owner)
-                        .ToListAsync();
-                    }
+                        if (sort)
+                        {
+                            p.Tickets = p.Tickets.OrderByDescending(t => t.TicketPriority).ToList();
 
+                        }
+                        else
+                        {
+                            p.Tickets = p.Tickets.OrderBy(t => t.TicketPriority).ToList();
+                        }
+                    });
                     break;
                 case "RequiredHrs":
-                    if (sort == true)
+                    projects.ForEach(p =>
                     {
-                        SortedProjs =
-                        await _context.Projects
-                        .Include(p => p.CreatedBy)
-                        .Include(p => p.AssignedTo)
-                        .ThenInclude(at => at.ApplicationUser)
-                        .Include(p => p.Tickets.OrderByDescending(t => t.RequiredHours))
-                        .ThenInclude(t => t.Owner)
-                        .ToListAsync();
-                    }
-                    else
-                    {
-                        SortedProjs =
-                        await _context.Projects
-                        .Include(p => p.CreatedBy)
-                        .Include(p => p.AssignedTo)
-                        .ThenInclude(at => at.ApplicationUser)
-                        .Include(p => p.Tickets.OrderBy(t => t.RequiredHours))
-                        .ThenInclude(t => t.Owner)
-                        .ToListAsync();
-                    }
+                        if (sort)
+                        {
+                            p.Tickets = p.Tickets.OrderByDescending(t => t.RequiredHours).ToList();
 
+                        }
+                        else
+                        {
+                            p.Tickets = p.Tickets.OrderBy(t => t.RequiredHours).ToList();
+
+                        }
+                    });
                     break;
                 case "Completed":
-                    SortedProjs =
-                        await _context.Projects
-                        .Include(p => p.CreatedBy)
-                        .Include(p => p.AssignedTo)
-                        .ThenInclude(at => at.ApplicationUser)
-                        .Include(p => p.Tickets.Where(t => t.Completed == true))
-                        .ThenInclude(t => t.Owner)
-                        .ToListAsync();
+                    projects.ForEach(p =>
+                    {
+                        p.Tickets = p.Tickets.Where(t => t.Completed == true).ToList();
+                    });
                     break;
                 default:
+                    projects = projects.OrderBy(p => p.ProjectName).ToList();
                     if (userId != null)
                     {
-                        SortedProjs =
-                        await _context.Projects
-                        .OrderBy(p => p.ProjectName)
-                        .Include(p => p.CreatedBy)
-                        .Include(p => p.AssignedTo)
-                        .ThenInclude(at => at.ApplicationUser)
-                        .Include(p => p.Tickets.Where(t => t.Owner.Id.Equals(userId)))
-                        .ThenInclude(t => t.Owner)
-                        .Include(p => p.Tickets).ThenInclude(t => t.TicketWatchers).ThenInclude(tw => tw.Watcher)
-                        .ToListAsync();
+                        projects.ForEach(p =>
+                        {
+                            p.Tickets = p.Tickets.Where(t => t.Owner?.Id == userId).ToList();
+                        });
                     }
-                    else
-                    {
-                        SortedProjs =
-                        await _context.Projects
-                        .OrderBy(p => p.ProjectName)
-                        .Include(p => p.CreatedBy)
-                        .Include(p => p.AssignedTo)
-                        .ThenInclude(at => at.ApplicationUser)
-                        .Include(p => p.Tickets)
-                        .ThenInclude(t => t.Owner)
-                        .Include(p => p.Tickets).ThenInclude(t => t.TicketWatchers).ThenInclude(tw => tw.Watcher)
-                        .ToListAsync();
-                    }
-
                     break;
             }
-            //check if User is PM or Develoer
-            var LogedUserName = User.Identity.Name;  // logined user name
-            var user = _context.Users.FirstOrDefault(u => u.UserName == LogedUserName);
-            var rolenames = await _users.GetRolesAsync(user);
-            var AssinedProject = new List<Project>();
-            // geting assined project
-            if (rolenames.Contains("Developer"))
+
+            ApplicationUser user = await _userBusinessLogic.FindByName(User.Identity.Name);
+            List<string> roles = await _userBusinessLogic.GetRoles(user.Id);
+
+            if (roles.Contains("Developer"))
             {
-                AssinedProject = SortedProjs.Where(p => p.AssignedTo.Select(projectUser => projectUser.UserId).Contains(user.Id)).ToList();
+                projects = projects.Where(p => p.AssignedTo.Select(projectUser => projectUser.UserId).Contains(user.Id)).ToList();
             }
-            else
-            {
-                AssinedProject = SortedProjs;
-            }
-            X.PagedList.IPagedList<Project> projList = AssinedProject.ToPagedList(page ?? 1, 3);
-            return View(projList);
+
+            return View(projects.ToPagedList());
         }
 
         // GET: Projects/Details/5
