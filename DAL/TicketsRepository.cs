@@ -22,7 +22,11 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
         {
             return _context.Tickets
                 .Include(t => t.Project)
-                .Include(t => t.Owner)
+                .Include(t => t.TicketWatchers)
+                .ThenInclude(tw => tw.Watcher)
+                .Include(u => u.Owner)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.CreatedBy)
                 .First(t => t.Id == id);
         }
 
@@ -30,7 +34,11 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
         {
             return _context.Tickets
                 .Include(t => t.Project)
-                .Include(t => t.Owner)
+                .Include(t => t.TicketWatchers)
+                .ThenInclude(tw => tw.Watcher)
+                .Include(u => u.Owner)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.CreatedBy)
                 .First(predicate);
         }
 
@@ -38,7 +46,11 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
         {
             return _context.Tickets
                 .Include(t => t.Project)
-                .Include(t => t.Owner)
+                .Include(t => t.TicketWatchers)
+                .ThenInclude(tw => tw.Watcher)
+                .Include(u => u.Owner)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.CreatedBy)
                 .Where(predicate)
                 .ToList();
         }
@@ -47,7 +59,11 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
         {
             return _context.Tickets
                 .Include(t => t.Project)
-                .Include(t => t.Owner)
+                .Include(t => t.TicketWatchers)
+                .ThenInclude(tw => tw.Watcher)
+                .Include(u => u.Owner)
+                .Include(t => t.Comments)
+                .ThenInclude(c => c.CreatedBy)
                 .ToList();
         }
 

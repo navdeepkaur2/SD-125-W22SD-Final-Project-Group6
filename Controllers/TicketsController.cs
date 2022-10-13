@@ -34,26 +34,26 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         }
 
         // GET: Tickets/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
-            if (id == null || _context.Tickets == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets.Include(t => t.Project).Include(t => t.TicketWatchers).ThenInclude(tw => tw.Watcher).Include(u => u.Owner).Include(t => t.Comments).ThenInclude(c => c.CreatedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            List<SelectListItem> currUsers = new List<SelectListItem>();
-            ticket.Project.AssignedTo.ToList().ForEach(t =>
-            {
-                currUsers.Add(new SelectListItem(t.ApplicationUser.UserName, t.ApplicationUser.Id.ToString()));
-            });
-            ViewBag.Users = currUsers;
+            Ticket? ticket = _ticketsBusinessLogic.FindById((int)id);
 
             if (ticket == null)
             {
                 return NotFound();
             }
+
+            List<SelectListItem> currUsers = new List<SelectListItem>();
+            ticket.Project!.AssignedTo.ToList().ForEach(t =>
+            {
+                currUsers.Add(new SelectListItem(t.ApplicationUser.UserName, t.ApplicationUser.Id.ToString()));
+            });
+            ViewBag.Users = currUsers;
 
             return View(ticket);
         }

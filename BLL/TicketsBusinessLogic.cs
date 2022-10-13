@@ -12,6 +12,11 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             _ticketsRepository = ticketsRepository;
         }
 
+        public Ticket? FindById(int id)
+        {
+            return _ticketsRepository.FindById(id);
+        }
+
         public List<Ticket> GetAll()
         {
             return _ticketsRepository.GetAll().ToList();
