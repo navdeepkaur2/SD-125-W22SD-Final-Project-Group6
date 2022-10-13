@@ -37,9 +37,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return View(vm);
         }
 
-        public async Task<IActionResult> ReassignRoleAsync()
+        public IActionResult ReassignRole()
         {
-            List<ApplicationUser> allUsers = _context.Users.ToList();
+            List<ApplicationUser> allUsers = _userBusinessLogic.GetAllUsers();
 
             List<SelectListItem> users = new List<SelectListItem>();
             allUsers.ForEach(u =>
