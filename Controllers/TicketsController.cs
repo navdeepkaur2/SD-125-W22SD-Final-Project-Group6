@@ -19,12 +19,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     public class TicketsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserBusinessLogic _userBusinessLogic;
         private readonly ProjectsBusinessLogic _projectsBusinessLogic;
         private readonly TicketsBusinessLogic _ticketsBusinessLogic;
 
         public TicketsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userBusinessLogic = new UserBusinessLogic(userManager);
             _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
             _ticketsBusinessLogic = new TicketsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
         }
@@ -106,19 +108,21 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Tickets == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets.Include(t => t.Owner).FirstAsync(t => t.Id == id);
+            Ticket? ticket = _ticketsBusinessLogic.FindById((int)id);
 
             if (ticket == null)
             {
                 return NotFound();
             }
 
-            List<ApplicationUser> results = _context.Users.Where(u => u != ticket.Owner).ToList();
+            List<ApplicationUser> developers = await _userBusinessLogic.GetUsersByRole("Developer");
+
+            List<ApplicationUser> results = developers.Where(u => u != ticket.Owner).ToList();
 
             List<SelectListItem> currUsers = new List<SelectListItem>();
             results.ForEach(r =>
