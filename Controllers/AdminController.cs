@@ -22,16 +22,18 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             _users = userManager;
             _userBusinessLogic = new UserBusinessLogic(context, userManager);
         }
+
         public async Task<IActionResult> Index()
         {
             List<ApplicationUser> projectManager = await _userBusinessLogic.GetUsersByRole("ProjectManager");
             List<ApplicationUser> developers = await _userBusinessLogic.GetUsersByRole("Developer");
-            List<ApplicationUser> allUsers = _context.Users.ToList();
+            List<ApplicationUser> allUsers = _userBusinessLogic.GetAllUsers();
 
             ProjectManagersAndDevelopersViewModels vm = new ProjectManagersAndDevelopersViewModels();
             vm.pms = projectManager;
             vm.devs = developers;
             vm.allUsers = allUsers;
+
             return View(vm);
         }
 

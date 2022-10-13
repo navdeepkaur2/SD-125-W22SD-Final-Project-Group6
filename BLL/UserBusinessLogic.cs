@@ -20,5 +20,10 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             IList<ApplicationUser> users = await _userManager.GetUsersInRoleAsync(role);
             return users.ToList();
         }
+
+        public List<ApplicationUser> GetAllUsers()
+        {
+            return _userManager.Users.ToList();
+        }
     }
 }
