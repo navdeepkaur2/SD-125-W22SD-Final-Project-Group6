@@ -46,7 +46,57 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             return _projectsRepository.FindList((page - 1) * count, count).ToList();
         }
 
-        public void RemoveAssignedUser(string userId, int projectId)
+        public bool Exists(int id)
+        {
+            Project? project = _projectsRepository.FindById(id);
+
+            return project != null;
+        }
+
+        public void RenameProject(int projectId, string name)
+        {
+            Project? project = _projectsRepository.FindById(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException("projectId does not exist");
+            }
+
+            project.ProjectName = name;
+
+            _projectsRepository.Update(project);
+            _projectsRepository.Save();
+        }
+
+        public async Task AddAssignedUsers(int projectId, List<string> assignedUserIds)
+        {
+            Project? project = _projectsRepository.FindById(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException("projectId does not exist");
+            }
+
+            foreach (string userId in assignedUserIds)
+            {
+                ApplicationUser assignedUser = await _userManager.FindByIdAsync(userId);
+
+                UserProject userProject = new UserProject();
+                userProject.ApplicationUser = assignedUser;
+                userProject.UserId = assignedUser.Id;
+                userProject.Project = project;
+
+                if (project.AssignedTo.FirstOrDefault(up => up.UserId == assignedUser.Id) == null)
+                {
+                    project.AssignedTo.Add(userProject);
+                }
+            }
+
+            _projectsRepository.Update(project);
+            _projectsRepository.Save();
+        }
+
+        public void RemoveAssignedUser(int projectId, string userId)
         {
             Project? project = _projectsRepository.FindById(projectId);
 

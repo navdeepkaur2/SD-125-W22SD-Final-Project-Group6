@@ -126,7 +126,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
         public IActionResult RemoveAssignedUser(string id, int projId)
         {
-            _projectsBusinessLogic.RemoveAssignedUser(id, projId);
+            _projectsBusinessLogic.RemoveAssignedUser(projId, id);
 
             return RedirectToAction("Edit", new { id = projId });
         }
@@ -210,21 +210,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 try
                 {
-                    userIds.ForEach((user) =>
-                    {
-                        ApplicationUser currUser = _context.Users.FirstOrDefault(u => u.Id == user);
-                        UserProject newUserProj = new UserProject();
-                        newUserProj.ApplicationUser = currUser;
-                        newUserProj.UserId = currUser.Id;
-                        newUserProj.Project = project;
-                        project.AssignedTo.Add(newUserProj);
-                    });
-                    _context.Update(project);
-                    await _context.SaveChangesAsync();
+                    _projectsBusinessLogic.RenameProject(project.Id, project.ProjectName);
+                    await _projectsBusinessLogic.AddAssignedUsers(project.Id, userIds);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProjectExists(project.Id))
+                    if (!_projectsBusinessLogic.Exists(project.Id))
                     {
                         return NotFound();
                     }
@@ -233,8 +224,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Edit), new { id = id });
             }
+
             return View(project);
         }
 
@@ -289,11 +282,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProjectExists(int id)
-        {
-            return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
