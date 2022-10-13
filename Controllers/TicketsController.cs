@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,11 +19,13 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     public class TicketsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ProjectsBusinessLogic _projectsBusinessLogic;
         private readonly TicketsBusinessLogic _ticketsBusinessLogic;
 
-        public TicketsController(ApplicationDbContext context)
+        public TicketsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
             _ticketsBusinessLogic = new TicketsBusinessLogic(new TicketsRepository(context));
         }
 
@@ -62,7 +65,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [Authorize(Roles = "ProjectManager")]
         public IActionResult Create(int projId)
         {
-            Project currProject = _context.Projects.Include(p => p.AssignedTo).ThenInclude(at => at.ApplicationUser).FirstOrDefault(p => p.Id == projId);
+            Project? currProject = _projectsBusinessLogic.FindById(projId);
+
+            if (currProject == null)
+            {
+                return NotFound();
+            }
 
             List<SelectListItem> currUsers = new List<SelectListItem>();
             currProject.AssignedTo.ToList().ForEach(t =>
@@ -74,7 +82,6 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             ViewBag.Users = currUsers;
 
             return View();
-
         }
 
         // POST: Tickets/Create
