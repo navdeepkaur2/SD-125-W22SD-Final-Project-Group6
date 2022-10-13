@@ -26,7 +26,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             _context = context;
             _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
-            _ticketsBusinessLogic = new TicketsBusinessLogic(new TicketsRepository(context));
+            _ticketsBusinessLogic = new TicketsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
         }
 
         // GET: Tickets
@@ -94,15 +94,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             if (ModelState.IsValid)
             {
-                ticket.Project = await _context.Projects.FirstAsync(p => p.Id == projId);
-                Project currProj = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projId);
-                ApplicationUser owner = _context.Users.FirstOrDefault(u => u.Id == userId);
-                ticket.Owner = owner;
-                _context.Add(ticket);
-                currProj.Tickets.Add(ticket);
-                await _context.SaveChangesAsync();
+                await _ticketsBusinessLogic.Create(ticket, projId, userId);
+
                 return RedirectToAction("Index", "Projects", new { area = "" });
             }
+
             return View(ticket);
         }
 
