@@ -25,12 +25,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         private readonly UserBusinessLogic _userBusinessLogic;
         private readonly ProjectsBusinessLogic _projectsBusinessLogic;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> users)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
-            _users = users;
-            _userBusinessLogic = new UserBusinessLogic(users);
-            _projectsBusinessLogic = new ProjectsBusinessLogic(new ProjectsRepository(context));
+            _users = userManager;
+            _userBusinessLogic = new UserBusinessLogic(userManager);
+            _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context));
         }
 
         // GET: Projects
@@ -122,7 +122,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             }
 
             return View(project);
-        }      
+        }
 
         // GET: Projects/Create
         [Authorize(Roles = "ProjectManager")]
@@ -150,23 +150,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             if (ModelState.IsValid)
             {
-                string userName = User.Identity.Name;
+                await _projectsBusinessLogic.Create(User, project, userIds);
 
-                ApplicationUser createdBy = _context.Users.First(u => u.UserName == userName);
-                userIds.ForEach((user) =>
-                {
-                    ApplicationUser currUser = _context.Users.FirstOrDefault(u => u.Id == user);
-                    UserProject newUserProj = new UserProject();
-                    newUserProj.ApplicationUser = currUser;
-                    newUserProj.UserId = currUser.Id;
-                    newUserProj.Project = project;
-                    project.AssignedTo.Add(newUserProj);
-                    _context.UserProjects.Add(newUserProj);
-                });
-                _context.Add(project);
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(project);
         }
 
