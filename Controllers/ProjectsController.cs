@@ -128,10 +128,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> CreateAsync()
         {
-            List<ApplicationUser> allUsers = (List<ApplicationUser>)await _users.GetUsersInRoleAsync("Developer");
+            List<ApplicationUser> developers = await _userBusinessLogic.GetUsersByRole("Developer");
 
             List<SelectListItem> users = new List<SelectListItem>();
-            allUsers.ForEach(au =>
+            developers.ForEach(au =>
             {
                 users.Add(new SelectListItem(au.UserName, au.Id.ToString()));
             });
