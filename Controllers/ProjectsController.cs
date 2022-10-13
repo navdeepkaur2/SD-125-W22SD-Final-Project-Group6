@@ -124,15 +124,9 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return View(project);
         }
 
-        public async Task<IActionResult> RemoveAssignedUser(string id, int projId)
+        public IActionResult RemoveAssignedUser(string id, int projId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            UserProject currUserProj = await _context.UserProjects.FirstAsync(up => up.ProjectId == projId && up.UserId == id);
-            _context.UserProjects.Remove(currUserProj);
-            await _context.SaveChangesAsync();
+            _projectsBusinessLogic.RemoveAssignedUser(id, projId);
 
             return RedirectToAction("Edit", new { id = projId });
         }

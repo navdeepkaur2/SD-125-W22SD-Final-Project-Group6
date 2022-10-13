@@ -45,5 +45,20 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
         {
             return _projectsRepository.FindList((page - 1) * count, count).ToList();
         }
+
+        public void RemoveAssignedUser(string userId, int projectId)
+        {
+            Project? project = _projectsRepository.FindById(projectId);
+
+            if (project == null)
+            {
+                throw new ArgumentException("projectId does not exist");
+            }
+
+            project.AssignedTo = project.AssignedTo.Where(up => !(up.UserId == userId && up.ProjectId == projectId)).ToList();
+
+            _projectsRepository.Update(project);
+            _projectsRepository.Save();
+        }
     }
 }
