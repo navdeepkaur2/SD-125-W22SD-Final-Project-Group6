@@ -162,18 +162,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [Authorize(Roles = "ProjectManager")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Projects == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var project = await _context.Projects.Include(p => p.AssignedTo).FirstAsync(p => p.Id == id);
+            Project? project = _projectsBusinessLogic.FindById((int)id);
+
             if (project == null)
             {
                 return NotFound();
             }
 
-            List<ApplicationUser> results = _context.Users.ToList();
+            List<ApplicationUser> results = await _userBusinessLogic.GetUsersByRole("Developer");
 
             List<SelectListItem> currUsers = new List<SelectListItem>();
             results.ForEach(r =>
