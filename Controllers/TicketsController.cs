@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SD_340_W22SD_Final_Project_Group6.BLL;
+using SD_340_W22SD_Final_Project_Group6.DAL;
 using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 using SD_340_W22SD_Final_Project_Group6.Models.ViewModel;
@@ -16,18 +18,19 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     public class TicketsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly TicketsBusinessLogic _ticketsBusinessLogic;
 
         public TicketsController(ApplicationDbContext context)
         {
             _context = context;
+            _ticketsBusinessLogic = new TicketsBusinessLogic(new TicketsRepository(context));
         }
 
         // GET: Tickets
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-              return _context.Tickets != null ? 
-                          View(await _context.Tickets.Include(t => t.Project).Include(t => t.Owner).ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Tickets'  is null.");
+            List<Ticket> tickets = _ticketsBusinessLogic.GetAll();
+            return View(tickets);
         }
 
         // GET: Tickets/Details/5
@@ -83,7 +86,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         public async Task<IActionResult> Create([Bind("Id,Title,Body,RequiredHours,TicketPriority")] Ticket ticket, int projId, string userId)
         {
             if (ModelState.IsValid)
-            { 
+            {
                 ticket.Project = await _context.Projects.FirstAsync(p => p.Id == projId);
                 Project currProj = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projId);
                 ApplicationUser owner = _context.Users.FirstOrDefault(u => u.Id == userId);
@@ -91,7 +94,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 _context.Add(ticket);
                 currProj.Tickets.Add(ticket);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index","Projects", new { area = ""});
+                return RedirectToAction("Index", "Projects", new { area = "" });
             }
             return View(ticket);
         }
@@ -106,7 +109,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             }
 
             var ticket = await _context.Tickets.Include(t => t.Owner).FirstAsync(t => t.Id == id);
-      
+
             if (ticket == null)
             {
                 return NotFound();
@@ -136,7 +139,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             //To be fixed ASAP
             currTicket.Owner = currUser;
             await _context.SaveChangesAsync();
-            
+
             return RedirectToAction("Edit", new { id = ticketId });
         }
 
@@ -146,7 +149,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> Edit(int id,string userId, [Bind("Id,Title,Body,RequiredHours")] Ticket ticket)
+        public async Task<IActionResult> Edit(int id, string userId, [Bind("Id,Title,Body,RequiredHours")] Ticket ticket)
         {
             if (id != ticket.Id)
             {
@@ -173,7 +176,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Edit), new {id = ticket.Id});
+                return RedirectToAction(nameof(Edit), new { id = ticket.Id });
             }
             return View(ticket);
         }
@@ -199,7 +202,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
                     int Id = TaskId;
                     await _context.SaveChangesAsync();
-                    return RedirectToAction("Details", new {Id});
+                    return RedirectToAction("Details", new { Id });
 
                 }
                 catch (Exception ex)
@@ -265,7 +268,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             {
                 try
                 {
-                    
+
                     string userName = User.Identity.Name;
                     ApplicationUser user = _context.Users.First(u => u.UserName == userName);
                     Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
@@ -365,14 +368,14 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 currProj.Tickets.Remove(ticket);
                 _context.Tickets.Remove(ticket);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Projects");
         }
 
         private bool TicketExists(int id)
         {
-          return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

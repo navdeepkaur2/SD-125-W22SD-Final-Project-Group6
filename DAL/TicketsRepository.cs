@@ -1,4 +1,5 @@
-﻿using SD_340_W22SD_Final_Project_Group6.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SD_340_W22SD_Final_Project_Group6.Data;
 using SD_340_W22SD_Final_Project_Group6.Models;
 
 namespace SD_340_W22SD_Final_Project_Group6.DAL
@@ -19,22 +20,35 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
 
         public Ticket? FindById(int id)
         {
-            return _context.Tickets.First(t => t.Id == id);
+            return _context.Tickets
+                .Include(t => t.Project)
+                .Include(t => t.Owner)
+                .First(t => t.Id == id);
         }
 
         public Ticket? Find(Func<Ticket, bool> predicate)
         {
-            return _context.Tickets.First(predicate);
+            return _context.Tickets
+                .Include(t => t.Project)
+                .Include(t => t.Owner)
+                .First(predicate);
         }
 
         public ICollection<Ticket> FindList(Func<Ticket, bool> predicate)
         {
-            return _context.Tickets.Where(predicate).ToList();
+            return _context.Tickets
+                .Include(t => t.Project)
+                .Include(t => t.Owner)
+                .Where(predicate)
+                .ToList();
         }
 
         public ICollection<Ticket> GetAll()
         {
-            return _context.Tickets.ToList();
+            return _context.Tickets
+                .Include(t => t.Project)
+                .Include(t => t.Owner)
+                .ToList();
         }
 
         public Ticket Update(Ticket entity)
