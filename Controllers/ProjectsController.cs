@@ -20,15 +20,11 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     [Authorize(Roles = "ProjectManager, Developer")]
     public class ProjectsController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _users;
         private readonly UserBusinessLogic _userBusinessLogic;
         private readonly ProjectsBusinessLogic _projectsBusinessLogic;
 
         public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
-            _users = userManager;
             _userBusinessLogic = new UserBusinessLogic(userManager);
             _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
         }
