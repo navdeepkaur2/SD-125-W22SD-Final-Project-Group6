@@ -281,45 +281,57 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> MarkAsCompleted(int id)
+        public async Task<IActionResult> MarkAsCompleted(int? id)
         {
             if (id != null)
             {
                 try
                 {
-                    Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
+                    Ticket? ticket = _ticketsBusinessLogic.FindById((int)id);
+
+                    if (ticket == null)
+                    {
+                        throw new ArgumentException("ticket not found");
+                    }
+
                     ticket.Completed = true;
+                    await _ticketsBusinessLogic.Update(ticket);
 
-                    await _context.SaveChangesAsync();
                     return RedirectToAction("Details", new { id });
-
                 }
                 catch (Exception ex)
                 {
                     return RedirectToAction("Error", "Home");
                 }
             }
+
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> UnMarkAsCompleted(int id)
+        public async Task<IActionResult> UnMarkAsCompleted(int? id)
         {
             if (id != null)
             {
                 try
                 {
-                    Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
+                    Ticket? ticket = _ticketsBusinessLogic.FindById((int)id);
+
+                    if (ticket == null)
+                    {
+                        throw new ArgumentException("ticket not found");
+                    }
+
                     ticket.Completed = false;
+                    await _ticketsBusinessLogic.Update(ticket);
 
-                    await _context.SaveChangesAsync();
                     return RedirectToAction("Details", new { id });
-
                 }
                 catch (Exception ex)
                 {
                     return RedirectToAction("Error", "Home");
                 }
             }
+
             return RedirectToAction("Index");
         }
 
