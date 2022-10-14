@@ -132,24 +132,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             ViewBag.Users = currUsers;
 
             return View(ticket);
-        }
-
-        [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> RemoveAssignedUser(string id, int ticketId)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            Ticket? currTicket = _ticketsBusinessLogic.FindById(ticketId);
-            ApplicationUser currUser = await _userBusinessLogic.FindById(id);
-
-            currTicket.Owner = currUser;
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Edit", new { id = ticketId });
-        }
+        }        
 
         // POST: Tickets/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
