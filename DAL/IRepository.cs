@@ -1,6 +1,6 @@
 ﻿namespace SD_340_W22SD_Final_Project_Group6.DAL;
 
-public interface IRepository<T>
+public interface IRepository<T> where T : class
 {
     void Create(T entity);
 
