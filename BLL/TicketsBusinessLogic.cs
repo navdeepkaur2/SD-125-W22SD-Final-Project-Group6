@@ -95,5 +95,21 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             _ticketsRepository.Update(ticket);
             _ticketsRepository.Save();
         }
+
+        public async Task RemoveFromWatchers(string userId, int ticketId)
+        {
+            ApplicationUser user = await _userManager.FindByIdAsync(userId);
+            Ticket? ticket = _ticketsRepository.FindById(ticketId);
+
+            if (ticket == null)
+            {
+                throw new ArgumentException("ticket not found");
+            }
+
+            TicketWatcher ticketWatcher = ticket.TicketWatchers.First(tw => tw.Watcher.Id == user.Id);
+
+            _ticketsRepository.RemoveWatcher(ticketWatcher);
+            _ticketsRepository.Save();
+        }
     }
 }

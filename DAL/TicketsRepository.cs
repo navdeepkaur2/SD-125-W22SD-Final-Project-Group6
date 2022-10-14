@@ -77,6 +77,11 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
             _context.Tickets.Remove(entity);
         }
 
+        public void RemoveWatcher(TicketWatcher watcher)
+        {
+            _context.TicketWatchers.Remove(watcher);
+        }
+
         public void Save()
         {
             _context.SaveChanges();

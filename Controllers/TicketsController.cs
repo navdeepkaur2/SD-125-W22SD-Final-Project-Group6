@@ -261,30 +261,23 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> UnWatch(int id)
+        public async Task<IActionResult> UnWatch(int? id)
         {
             if (id != null)
             {
                 try
                 {
+                    ApplicationUser user = await _userBusinessLogic.FindByName(User.Identity.Name);
+                    await _ticketsBusinessLogic.RemoveFromWatchers(user.Id, (int)id);
 
-                    string userName = User.Identity.Name;
-                    ApplicationUser user = _context.Users.First(u => u.UserName == userName);
-                    Ticket ticket = _context.Tickets.FirstOrDefault(t => t.Id == id);
-                    TicketWatcher currTickWatch = await _context.TicketWatchers.FirstAsync(tw => tw.Ticket.Equals(ticket) && tw.Watcher.Equals(user));
-                    _context.TicketWatchers.Remove(currTickWatch);
-                    ticket.TicketWatchers.Remove(currTickWatch);
-                    user.TicketWatching.Remove(currTickWatch);
-
-                    await _context.SaveChangesAsync();
                     return RedirectToAction("Details", new { id });
-
                 }
                 catch (Exception ex)
                 {
                     return RedirectToAction("Error", "Home");
                 }
             }
+
             return RedirectToAction("Index");
         }
 
