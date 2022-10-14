@@ -52,6 +52,19 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             _ticketsRepository.Save();
         }
 
+        public void Delete(int id)
+        {
+            Ticket? ticket = _ticketsRepository.FindById(id);
+
+            if (ticket == null)
+            {
+                throw new ArgumentException("ticket not found");
+            }
+
+            _ticketsRepository.Delete(ticket);
+            _ticketsRepository.Save();
+        }
+
         public bool Exists(int id)
         {
             Ticket? ticket = _ticketsRepository.FindById(id);

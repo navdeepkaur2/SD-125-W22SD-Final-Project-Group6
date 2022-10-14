@@ -359,21 +359,10 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> DeleteConfirmed(int id, int projId)
+        public IActionResult DeleteConfirmed(int id, int projId)
         {
-            if (_context.Tickets == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Tickets'  is null.");
-            }
-            var ticket = await _context.Tickets.Include(t => t.Project).FirstAsync(p => p.Id == id);
-            Project currProj = await _context.Projects.FirstAsync(p => p.Id.Equals(projId));
-            if (ticket != null)
-            {
-                currProj.Tickets.Remove(ticket);
-                _context.Tickets.Remove(ticket);
-            }
+            _ticketsBusinessLogic.Delete(id);
 
-            await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Projects");
         }
     }
