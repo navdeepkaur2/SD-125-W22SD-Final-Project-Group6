@@ -338,15 +338,15 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
         // GET: Tickets/Delete/5
         [Authorize(Roles = "ProjectManager")]
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
-            if (id == null || _context.Tickets == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets.Include(t => t.Project)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Ticket? ticket = _ticketsBusinessLogic.FindById((int)id);
+
             if (ticket == null)
             {
                 return NotFound();
