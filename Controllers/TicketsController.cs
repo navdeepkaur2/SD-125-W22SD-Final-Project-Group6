@@ -18,14 +18,12 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
     [Authorize]
     public class TicketsController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserBusinessLogic _userBusinessLogic;
         private readonly ProjectsBusinessLogic _projectsBusinessLogic;
         private readonly TicketsBusinessLogic _ticketsBusinessLogic;
 
         public TicketsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
             _userBusinessLogic = new UserBusinessLogic(userManager);
             _projectsBusinessLogic = new ProjectsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context));
             _ticketsBusinessLogic = new TicketsBusinessLogic(userManager, new ProjectsRepository(context), new TicketsRepository(context), new CommentsRepository(context));
@@ -132,7 +130,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
             ViewBag.Users = currUsers;
 
             return View(ticket);
-        }        
+        }
 
         // POST: Tickets/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
