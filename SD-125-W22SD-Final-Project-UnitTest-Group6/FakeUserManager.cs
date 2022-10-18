@@ -28,10 +28,48 @@ namespace SD_125_W22SD_UnitTest
             fakeUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
             fakeUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((string id) => users.Find(u => u.Id == id));
             fakeUserManager.Setup(x => x.FindByNameAsync(It.IsAny<string>())).ReturnsAsync((string name) => users.Find(u => u.UserName == name));
-            fakeUserManager.Setup(x => x.GetUsersInRoleAsync(It.IsAny<string>())).ReturnsAsync((string role) => users.Where(u => userRoles.Where(ur => ur.Value == role).Select(p => p.Key).Contains(u.Id)).ToList());
             fakeUserManager.Setup(x => x.UpdateAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
             fakeUserManager.Setup(x => x.DeleteAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
             fakeUserManager.Setup(x => x.ChangeEmailAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
+            fakeUserManager.Setup(x => x.GetUsersInRoleAsync(It.IsAny<string>())).ReturnsAsync((string role) => users.Where(u => userRoles.Where(ur => ur.Value == role).Select(p => p.Key).Contains(u.Id)).ToList());
+            fakeUserManager
+                .Setup(x => x.GetRolesAsync(It.IsAny<ApplicationUser>()))
+                .ReturnsAsync((ApplicationUser user) =>
+                {
+                    if (userRoles == null)
+                    {
+                        throw new ArgumentNullException(nameof(userRoles));
+                    }
+
+                    var roles = userRoles.Where(ur => ur.Key == user.Id).Select(p => p.Value).Distinct().ToList();
+
+                    return roles;
+                });
+            fakeUserManager
+               .Setup(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+               .Callback((ApplicationUser user, string role) =>
+               {
+                   if (userRoles == null)
+                   {
+                       throw new ArgumentNullException(nameof(userRoles));
+                   }
+
+                   userRoles[user.Id] = role;
+               });
+            fakeUserManager
+                .Setup(x => x.RemoveFromRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .Callback((ApplicationUser user, string role) =>
+                {
+                    if (userRoles == null)
+                    {
+                        return;
+                    }
+
+                    if (userRoles.ContainsKey(user.Id) && userRoles[user.Id] == role)
+                    {
+                        userRoles.Remove(user.Id);
+                    }
+                });
 
             return fakeUserManager.Object;
         }
