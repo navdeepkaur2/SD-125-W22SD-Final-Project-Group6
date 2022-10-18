@@ -243,5 +243,43 @@ namespace SD_125_W22SD_UnitTest
             Assert.IsFalse(userRoles.Where(ur => ur.Key == users[2].Id).Select(p => p.Value).Contains("Developer"));
             Assert.AreEqual("ProjectManager", userRoles[users[2].Id]);
         }
+
+        [TestMethod]
+        public async Task ShouldThrowExceptionWhenAssigningRoleAndUserNotFound()
+        {
+            var users = new List<ApplicationUser>
+            {
+                new ApplicationUser
+                {
+                    UserName = "User1",
+                    NormalizedUserName = "USER1",
+                    Id = "UserId1",
+                },
+                new ApplicationUser
+                {
+                    UserName = "User2",
+                    NormalizedUserName = "USER2",
+                    Id = "UserId2",
+                },
+                new ApplicationUser
+                {
+                    UserName = "User3",
+                    NormalizedUserName = "USER3",
+                    Id = "UserId3",
+                },
+            };
+            var userRoles = new Dictionary<string, string> {
+                    { users[0].Id, "Admin" },
+                    { users[1].Id, "ProjectManager" },
+                    { users[2].Id, "Developer" },
+                };
+            var userManager = FakeUserManager.GetFakeUserManager(users, userRoles);
+            var userBusinessLogic = new UserBusinessLogic(userManager);
+
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+            {
+                await userBusinessLogic.AssignRole("UserId4", "ProjectManager");
+            });
+        }
     }
 }

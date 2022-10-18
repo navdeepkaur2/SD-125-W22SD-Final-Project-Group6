@@ -35,7 +35,12 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
 
         public async Task AssignRole(string userId, string role)
         {
-            ApplicationUser user = await _userManager.FindByIdAsync(userId);
+            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new ArgumentException("User with specified userId not found.");
+            }
 
             ICollection<string> userRoles = await _userManager.GetRolesAsync(user);
 
