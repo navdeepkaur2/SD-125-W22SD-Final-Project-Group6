@@ -55,6 +55,12 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
         public async Task<List<string>> GetRoles(string userId)
         {
             ApplicationUser user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new ArgumentException("User with specified userId not found.");
+            }
+
             IList<string> roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
         }
