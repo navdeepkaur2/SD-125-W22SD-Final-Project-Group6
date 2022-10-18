@@ -117,5 +117,48 @@ namespace SD_125_W22SD_UnitTest
             Assert.IsTrue(result.Select(user => user.Id).Contains(users[0].Id));
             Assert.IsTrue(result.Select(user => user.Id).Contains(users[1].Id));
         }
+
+        [TestMethod]
+        public async Task ShouldReturnEmptyListWhenNoMatchingRolePassed()
+        {
+            var users = new List<ApplicationUser>
+            {
+                new ApplicationUser
+                {
+                    UserName = "User1",
+                    NormalizedUserName = "USER1",
+                    Id = "UserId1",
+                },
+                new ApplicationUser
+                {
+                    UserName = "User2",
+                    NormalizedUserName = "USER2",
+                    Id = "UserId2",
+                },
+                new ApplicationUser
+                {
+                    UserName = "User3",
+                    NormalizedUserName = "USER3",
+                    Id = "UserId3",
+                },
+            };
+            var userManager = FakeUserManager.GetFakeUserManager(
+                users,
+                new Dictionary<string, string> {
+                    { users[0].Id, "Developer" },
+                    { users[1].Id, "Developer" },
+                    { users[2].Id, "ProjectManager" },
+                }
+                );
+            var userBusinessLogic = new UserBusinessLogic(userManager);
+
+            var result = await userBusinessLogic.GetUsersByRole("Admin");
+
+
+            foreach (var user in users)
+            {
+                Assert.IsFalse(result.Select(user => user.Id).Contains(user.Id));
+            }
+        }
     }
 }
