@@ -194,5 +194,16 @@ namespace SD_125_W22SD_UnitTest
                 Assert.IsTrue(result.Select(user => user.Id).Contains(user.Id));
             }
         }
+
+        [TestMethod]
+        public void ShouldReturnEmptyListWhenThereIsNoUser()
+        {
+            var userManager = FakeUserManager.GetFakeUserManager(new List<ApplicationUser>(), null);
+            var userBusinessLogic = new UserBusinessLogic(userManager);
+
+            var result = userBusinessLogic.GetAllUsers();
+
+            Assert.AreEqual(0, result.Count);
+        }
     }
 }
