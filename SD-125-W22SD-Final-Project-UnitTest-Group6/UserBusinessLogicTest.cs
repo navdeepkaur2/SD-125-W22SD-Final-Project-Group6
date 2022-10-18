@@ -154,10 +154,44 @@ namespace SD_125_W22SD_UnitTest
 
             var result = await userBusinessLogic.GetUsersByRole("Admin");
 
-
             foreach (var user in users)
             {
                 Assert.IsFalse(result.Select(user => user.Id).Contains(user.Id));
+            }
+        }
+
+        [TestMethod]
+        public void ShouldReturnAllUsers()
+        {
+            var users = new List<ApplicationUser>
+            {
+                new ApplicationUser
+                {
+                    UserName = "User1",
+                    NormalizedUserName = "USER1",
+                    Id = "UserId1",
+                },
+                new ApplicationUser
+                {
+                    UserName = "User2",
+                    NormalizedUserName = "USER2",
+                    Id = "UserId2",
+                },
+                new ApplicationUser
+                {
+                    UserName = "User3",
+                    NormalizedUserName = "USER3",
+                    Id = "UserId3",
+                },
+            };
+            var userManager = FakeUserManager.GetFakeUserManager(users, null);
+            var userBusinessLogic = new UserBusinessLogic(userManager);
+
+            var result = userBusinessLogic.GetAllUsers();
+
+            foreach (var user in users)
+            {
+                Assert.IsTrue(result.Select(user => user.Id).Contains(user.Id));
             }
         }
     }
