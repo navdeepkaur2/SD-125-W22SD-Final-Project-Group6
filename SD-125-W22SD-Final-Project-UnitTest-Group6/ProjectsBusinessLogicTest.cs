@@ -12,41 +12,37 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
     {
         private ProjectsBusinessLogic projectsBusinessLogic = null!;
 
-        private List<ApplicationUser> users = new List<ApplicationUser>
-        {
-            new ApplicationUser
-            {
-                Id = "1",
-                UserName = "User1",
-            }
-        };
-
-        private Dictionary<string, string> userRoles = new Dictionary<string, string>
-        {
-            { "1", "Admin" }
-        };
-
-        private List<Project> projects = new List<Project>
-        {
-             new Project
-             {
-                Id = 1,
-                ProjectName = "Project1",
-
-             }
-        };
-
-        private List<Ticket> tickets = new List<Ticket>
-        {
-            new Ticket
-            {
-                Id = 1,
-            }
-        };
-
         [TestInitialize]
         public void TestInitialize()
         {
+            var users = new List<ApplicationUser>
+            {
+                new ApplicationUser
+                {
+                    Id = "1",
+                    UserName = "User1",
+                }
+            };
+            var userRoles = new Dictionary<string, string>
+            {
+                { users[0].Id, "Admin" }
+            };
+            var projects = new List<Project>
+            {
+                 new Project
+                 {
+                    Id = 1,
+                    ProjectName = "Project1",
+                 }
+            };
+            var tickets = new List<Ticket>
+            {
+                new Ticket
+                {
+                    Id = 1,
+                }
+            };
+
             var queryableProjects = projects.AsQueryable();
             var queryableTickets = tickets.AsQueryable();
 
@@ -77,11 +73,9 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
         [TestMethod]
         public void ShouldReturnCorrectProjectWhenMatchingIdPassed()
         {
-            var project = projects[0];
+            var result = projectsBusinessLogic.FindById(1);
 
-            var result = projectsBusinessLogic.FindById(project.Id);
-
-            Assert.AreEqual(project.Id, result?.Id);
+            Assert.AreEqual(1, result?.Id);
         }
 
         [TestMethod]
