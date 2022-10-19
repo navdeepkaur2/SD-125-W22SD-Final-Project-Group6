@@ -83,5 +83,13 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
 
             Assert.AreEqual(project.Id, result?.Id);
         }
+
+        [TestMethod]
+        public void ShouldReturnNullWhenNoMatchingIdPassed()
+        {
+            var result = projectsBusinessLogic.FindById(-1);
+
+            Assert.IsNull(result);
+        }
     }
 }
