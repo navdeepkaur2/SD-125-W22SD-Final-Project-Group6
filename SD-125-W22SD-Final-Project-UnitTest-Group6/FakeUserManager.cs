@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using SD_340_W22SD_Final_Project_Group6.Models;
 
-namespace SD_125_W22SD_UnitTest
+namespace SD_125_W22SD_Final_Project_UnitTest_Group6
 {
     public class FakeUserManager : UserManager<ApplicationUser>
     {

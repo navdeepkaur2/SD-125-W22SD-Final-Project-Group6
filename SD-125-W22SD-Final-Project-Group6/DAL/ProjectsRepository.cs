@@ -18,7 +18,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
             _context.Projects.Add(entity);
         }
 
-        public Project? FindById(int id)
+        public virtual Project? FindById(int id)
         {
             return _context.Projects
                 .Include(p => p.CreatedBy)
@@ -29,7 +29,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .Include(p => p.Tickets)
                 .ThenInclude(t => t.TicketWatchers)
                 .ThenInclude(tw => tw.Watcher)
-                .First(p => p.Id == id);
+                .FirstOrDefault(p => p.Id == id);
         }
 
         public Project? Find(Func<Project, bool> predicate)

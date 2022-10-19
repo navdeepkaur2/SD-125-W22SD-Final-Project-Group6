@@ -6,15 +6,16 @@ namespace SD_340_W22SD_Final_Project_Group6.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
-        public DbSet<SD_340_W22SD_Final_Project_Group6.Models.Ticket> Tickets { get; set; }
-        public DbSet<SD_340_W22SD_Final_Project_Group6.Models.Project> Projects { get; set; }
-        public DbSet<SD_340_W22SD_Final_Project_Group6.Models.Comment> Comments { get; set; }
-        public DbSet<SD_340_W22SD_Final_Project_Group6.Models.UserProject> UserProjects { get; set; }
-        public DbSet<SD_340_W22SD_Final_Project_Group6.Models.TicketWatcher> TicketWatchers { get; set; }
+        public ApplicationDbContext() : base()
+        { }
 
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        { }
+
+        public virtual DbSet<Ticket> Tickets { get; set; }
+        public virtual DbSet<Project> Projects { get; set; }
+        public virtual DbSet<Comment> Comments { get; set; }
+        public virtual DbSet<UserProject> UserProjects { get; set; }
+        public virtual DbSet<TicketWatcher> TicketWatchers { get; set; }
     }
 }

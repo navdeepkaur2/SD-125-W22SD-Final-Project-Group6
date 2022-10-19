@@ -1,7 +1,7 @@
 using SD_340_W22SD_Final_Project_Group6.BLL;
 using SD_340_W22SD_Final_Project_Group6.Models;
 
-namespace SD_125_W22SD_UnitTest
+namespace SD_125_W22SD_Final_Project_UnitTest_Group6
 {
     [TestClass]
     public class UserBusinessLogicTest
