@@ -229,5 +229,40 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             // Assert
             Assert.AreEqual(testProjects.Count, resultProject.Count);
         }
+
+        [TestMethod]
+        [DataRow(0)]
+        [DataRow(-1)]
+        public void ShouldThrowExceptionWhenPageIsZeroOrNegative(int page)
+        {
+            // Arrange                      
+            var testProjects = new List<Project>();
+            for (var i = 1; i <= 10; i++)
+            {
+                testProjects.Add(
+                        new Project
+                        {
+                            Id = i,
+                            ProjectName = $"Project{i}"
+                        }
+                    );
+            }
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+
+            mockProjectsRepository
+                .Setup(x => x.FindList(It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(testProjects);
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act & Assert
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                projectsBusinessLogic.FindByPage(page, 10);
+            });
+        }
     }
 }

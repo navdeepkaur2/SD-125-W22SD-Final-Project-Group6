@@ -52,6 +52,11 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
 
         public List<Project> FindByPage(int page = 1, int count = 10)
         {
+            if (page <= 0 || count <= 0)
+            {
+                throw new ArgumentException();
+            }
+
             return _projectsRepository.FindList((page - 1) * count, count).ToList();
         }
 
