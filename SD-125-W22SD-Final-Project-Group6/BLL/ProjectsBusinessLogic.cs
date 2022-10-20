@@ -20,7 +20,14 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
 
         public async Task Create(string userId, Project project, List<string> assignedUserIds)
         {
-            project.CreatedBy = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new ArgumentException();
+            }
+
+            project.CreatedBy = user;
 
             foreach (string assignedUserId in assignedUserIds)
             {

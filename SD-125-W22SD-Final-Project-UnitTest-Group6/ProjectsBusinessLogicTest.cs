@@ -65,7 +65,7 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
                });
 
             var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
-            
+
             // Act
             await projectsBusinessLogic.Create(testUser.Id, testProject, testAssignedUsers.Select(u => u.Id).ToList());
 
@@ -73,6 +73,71 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             Assert.AreEqual(1, testSavedProjects.Count());
             var resultProject = testSavedProjects.First();
             Assert.AreEqual(testProject.Id, resultProject.Id);
+        }
+
+        [TestMethod]
+        public async Task ShouldThrowExceptionWhenCreatingProjectAndPassedUserIdNotFound()
+        {
+            // Arrange
+            var testUser = new ApplicationUser
+            {
+                Id = "1",
+                UserName = "User1"
+            };
+            var testAssignedUsers = new List<ApplicationUser>
+            {
+                new ApplicationUser
+                {
+                    Id = "2",
+                    UserName = "User2"
+                }
+            };
+            var testProject = new Project
+            {
+                Id = 1,
+                ProjectName = "Project1"
+            };
+
+            var testAddedProjects = new List<Project>();
+            var testSavedProjects = new List<Project>();
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+
+            mockUserManager
+                .Setup(x => x.FindByIdAsync(testUser.Id))
+                .ReturnsAsync(testUser);            
+            mockUserManager
+                .Setup(x => x.FindByIdAsync(It.IsIn(testAssignedUsers.Select(u => u.Id))))
+                .ReturnsAsync((string userId) =>
+                {
+                    return testAssignedUsers.Find(u => u.Id == userId)!;
+                });
+            mockUserManager
+                .Setup(x => x.FindByIdAsync(It.Is((string userId) => userId != testUser.Id && !testAssignedUsers.Select(u => u.Id).Contains(userId))))
+                .Returns(Task.FromResult<ApplicationUser?>(null));
+            mockProjectsRepository
+               .Setup(x => x.Create(It.IsAny<Project>()))
+               .Callback((Project project) =>
+               {
+                   testAddedProjects.Add(project);
+               });
+            mockProjectsRepository
+               .Setup(x => x.Save())
+               .Callback(() =>
+               {
+                   testSavedProjects.AddRange(testAddedProjects);
+                   testAddedProjects.Clear();
+               });
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+            {
+                await projectsBusinessLogic.Create("3", testProject, testAssignedUsers.Select(u => u.Id).ToList());
+            });
         }
 
         [TestMethod]
