@@ -170,16 +170,31 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
         [TestMethod]
         public void ShouldReturnNullWhenNoMatchingIdPassed()
         {
-            var project = new Project
+            // Arrange                      
+            var testProject = new Project
             {
                 Id = 1,
-                ProjectName = "Project1",
+                ProjectName = "Project1"
             };
-            var projectsBusinessLogic = GetMockProjectsBusinessLogic(null, null, new List<Project> { project }, null, null);
 
-            var result = projectsBusinessLogic.FindById(-1);
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
 
-            Assert.IsNull(result);
+            mockProjectsRepository
+                .Setup(x => x.FindById(It.Is((int id) => id == testProject.Id)))
+                .Returns(testProject);
+            mockProjectsRepository
+                .Setup(x => x.FindById(It.Is((int id) => id != testProject.Id)))
+                .Returns((Project?)null);
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act
+            var resultProject = projectsBusinessLogic.FindById(-1);
+
+            // Assert
+            Assert.IsNull(resultProject);
         }
 
         private ProjectsBusinessLogic GetMockProjectsBusinessLogic(
