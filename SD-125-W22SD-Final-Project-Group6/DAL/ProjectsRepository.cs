@@ -49,7 +49,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .First(predicate);
         }
 
-        public ICollection<Project> FindList(Func<Project, bool> predicate)
+        public virtual ICollection<Project> FindList(Func<Project, bool> predicate)
         {
             return _context.Projects
                 .Include(p => p.CreatedBy)
@@ -64,7 +64,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .ToList();
         }
 
-        public ICollection<Project> FindList(int offset, int count)
+        public virtual ICollection<Project> FindList(int offset, int count)
         {
             return _context.Projects
                 .Include(p => p.CreatedBy)

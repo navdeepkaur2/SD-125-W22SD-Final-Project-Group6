@@ -195,6 +195,39 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
 
             // Assert
             Assert.IsNull(resultProject);
-        }        
+        }
+
+        [TestMethod]
+        public void ShouldReturnListOfProjects()
+        {
+            // Arrange                      
+            var testProjects = new List<Project>();
+            for (var i = 1; i <= 10; i++)
+            {
+                testProjects.Add(
+                        new Project
+                        {
+                            Id = i,
+                            ProjectName = $"Project{i}"
+                        }
+                    );
+            }
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+
+            mockProjectsRepository
+                .Setup(x => x.FindList(It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(testProjects);
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act
+            var resultProject = projectsBusinessLogic.FindByPage();
+
+            // Assert
+            Assert.AreEqual(testProjects.Count, resultProject.Count);
+        }
     }
 }
