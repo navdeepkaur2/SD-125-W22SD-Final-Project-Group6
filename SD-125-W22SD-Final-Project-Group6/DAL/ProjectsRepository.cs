@@ -35,7 +35,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .FirstOrDefault(p => p.Id == id);
         }
 
-        public Project? Find(Func<Project, bool> predicate)
+        public virtual Project? Find(Func<Project, bool> predicate)
         {
             return _context.Projects
                 .Include(p => p.CreatedBy)
@@ -80,27 +80,27 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .ToList();
         }
 
-        public ICollection<Project> GetAll()
+        public virtual ICollection<Project> GetAll()
         {
             return _context.Projects.ToList();
         }
 
-        public Project Update(Project entity)
+        public virtual Project Update(Project entity)
         {
             return _context.Projects.Update(entity).Entity;
         }
 
-        public void Delete(Project entity)
+        public virtual void Delete(Project entity)
         {
             _context.Projects.Remove(entity);
         }
 
-        public int Count()
+        public virtual int Count()
         {
             return _context.Projects.Count();
         }
 
-        public void RemoveAssignedUser(int projectId, string userId)
+        public virtual void RemoveAssignedUser(int projectId, string userId)
         {
             List<UserProject> userProjects = _context.UserProjects.Where(up => up.ProjectId == projectId && up.UserId == userId).ToList();
 

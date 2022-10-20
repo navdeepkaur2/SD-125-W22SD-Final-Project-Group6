@@ -16,12 +16,12 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
             _context = context;
         }
 
-        public void Create(Ticket entity)
+        public virtual void Create(Ticket entity)
         {
             _context.Tickets.Add(entity);
         }
 
-        public Ticket? FindById(int id)
+        public virtual Ticket? FindById(int id)
         {
             return _context.Tickets
                 .Include(t => t.Project)
@@ -33,7 +33,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .First(t => t.Id == id);
         }
 
-        public Ticket? Find(Func<Ticket, bool> predicate)
+        public virtual Ticket? Find(Func<Ticket, bool> predicate)
         {
             return _context.Tickets
                 .Include(t => t.Project)
@@ -45,7 +45,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .First(predicate);
         }
 
-        public ICollection<Ticket> FindList(Func<Ticket, bool> predicate)
+        public virtual ICollection<Ticket> FindList(Func<Ticket, bool> predicate)
         {
             return _context.Tickets
                 .Include(t => t.Project)
@@ -58,7 +58,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .ToList();
         }
 
-        public ICollection<Ticket> GetAll()
+        public virtual ICollection<Ticket> GetAll()
         {
             return _context.Tickets
                 .Include(t => t.Project)
@@ -70,22 +70,22 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
                 .ToList();
         }
 
-        public Ticket Update(Ticket entity)
+        public virtual Ticket Update(Ticket entity)
         {
             return _context.Tickets.Update(entity).Entity;
         }
 
-        public void Delete(Ticket entity)
+        public virtual void Delete(Ticket entity)
         {
             _context.Tickets.Remove(entity);
         }
 
-        public void RemoveWatcher(TicketWatcher watcher)
+        public virtual void RemoveWatcher(TicketWatcher watcher)
         {
             _context.TicketWatchers.Remove(watcher);
         }
 
-        public void Save()
+        public virtual void Save()
         {
             _context.SaveChanges();
         }
