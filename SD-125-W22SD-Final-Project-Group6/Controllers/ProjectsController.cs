@@ -153,7 +153,8 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _projectsBusinessLogic.Create(User, project, userIds);
+                ApplicationUser user = await _userBusinessLogic.FindByName(User.Identity.Name);
+                await _projectsBusinessLogic.Create(user.Id, project, userIds);
 
                 return RedirectToAction(nameof(Index));
             }

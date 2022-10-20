@@ -8,6 +8,9 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
     {
         private readonly ApplicationDbContext _context;
 
+        public TicketsRepository()
+        { }
+
         public TicketsRepository(ApplicationDbContext context)
         {
             _context = context;

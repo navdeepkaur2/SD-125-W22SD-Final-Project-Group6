@@ -8,12 +8,15 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
     {
         private readonly ApplicationDbContext _context;
 
+        public ProjectsRepository()
+        { }
+
         public ProjectsRepository(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public void Create(Project entity)
+        public virtual void Create(Project entity)
         {
             _context.Projects.Add(entity);
         }
@@ -107,7 +110,7 @@ namespace SD_340_W22SD_Final_Project_Group6.DAL
             }
         }
 
-        public void Save()
+        public virtual void Save()
         {
             _context.SaveChanges();
         }

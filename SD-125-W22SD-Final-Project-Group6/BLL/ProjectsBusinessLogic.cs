@@ -18,13 +18,13 @@ namespace SD_340_W22SD_Final_Project_Group6.BLL
             _ticketsRepository = ticketsRepository;
         }
 
-        public async Task Create(ClaimsPrincipal user, Project project, List<string> assignedUserIds)
+        public async Task Create(string userId, Project project, List<string> assignedUserIds)
         {
-            project.CreatedBy = await _userManager.GetUserAsync(user);
+            project.CreatedBy = await _userManager.FindByIdAsync(userId);
 
-            foreach (string userId in assignedUserIds)
+            foreach (string assignedUserId in assignedUserIds)
             {
-                ApplicationUser assignedUser = await _userManager.FindByIdAsync(userId);
+                ApplicationUser assignedUser = await _userManager.FindByIdAsync(assignedUserId);
 
                 UserProject userProject = new UserProject();
                 userProject.ApplicationUser = assignedUser;
