@@ -107,7 +107,7 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
 
             mockUserManager
                 .Setup(x => x.FindByIdAsync(testUser.Id))
-                .ReturnsAsync(testUser);            
+                .ReturnsAsync(testUser);
             mockUserManager
                 .Setup(x => x.FindByIdAsync(It.IsIn(testAssignedUsers.Select(u => u.Id))))
                 .ReturnsAsync((string userId) =>
@@ -143,16 +143,28 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
         [TestMethod]
         public void ShouldReturnCorrectProjectWhenMatchingIdPassed()
         {
-            var project = new Project
+            // Arrange                      
+            var testProject = new Project
             {
                 Id = 1,
-                ProjectName = "Project1",
+                ProjectName = "Project1"
             };
-            var projectsBusinessLogic = GetMockProjectsBusinessLogic(null, null, new List<Project> { project }, null, null);
 
-            var result = projectsBusinessLogic.FindById(project.Id);
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
 
-            Assert.AreEqual(project.Id, result?.Id);
+            mockProjectsRepository
+                .Setup(x => x.FindById(It.IsAny<int>()))
+                .Returns(testProject);
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act
+            var resultProject = projectsBusinessLogic.FindById(testProject.Id);
+
+            // Assert
+            Assert.AreEqual(testProject.Id, resultProject?.Id);
         }
 
         [TestMethod]
