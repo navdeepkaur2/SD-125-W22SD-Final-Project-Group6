@@ -195,47 +195,6 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
 
             // Assert
             Assert.IsNull(resultProject);
-        }
-
-        private ProjectsBusinessLogic GetMockProjectsBusinessLogic(
-            List<ApplicationUser>? users,
-            Dictionary<string, string>? userRoles,
-            List<Project>? projects,
-            List<Ticket>? tickets,
-            Mock<ApplicationDbContext>? mockDbContext
-            )
-        {
-            users ??= new List<ApplicationUser>();
-            userRoles ??= new Dictionary<string, string>();
-            projects ??= new List<Project>();
-            tickets ??= new List<Ticket>();
-
-            var queryableProjects = projects.AsQueryable();
-            var queryableTickets = tickets.AsQueryable();
-
-            var mockProjectDbSet = new Mock<DbSet<Project>>();
-            var mockTicketDbSet = new Mock<DbSet<Ticket>>();
-
-            mockProjectDbSet.As<IQueryable<Project>>().Setup(x => x.Provider).Returns(queryableProjects.Provider);
-            mockProjectDbSet.As<IQueryable<Project>>().Setup(x => x.Expression).Returns(queryableProjects.Expression);
-            mockProjectDbSet.As<IQueryable<Project>>().Setup(x => x.ElementType).Returns(queryableProjects.ElementType);
-            mockProjectDbSet.As<IQueryable<Project>>().Setup(x => x.GetEnumerator()).Returns(queryableProjects.GetEnumerator());
-            mockTicketDbSet.As<IQueryable<Ticket>>().Setup(x => x.Provider).Returns(queryableTickets.Provider);
-            mockTicketDbSet.As<IQueryable<Ticket>>().Setup(x => x.Expression).Returns(queryableTickets.Expression);
-            mockTicketDbSet.As<IQueryable<Ticket>>().Setup(x => x.ElementType).Returns(queryableTickets.ElementType);
-            mockTicketDbSet.As<IQueryable<Ticket>>().Setup(x => x.GetEnumerator()).Returns(queryableTickets.GetEnumerator());
-
-            mockDbContext ??= new Mock<ApplicationDbContext>();
-            mockDbContext.Setup(x => x.Projects).Returns(mockProjectDbSet.Object);
-            mockDbContext.Setup(x => x.Tickets).Returns(mockTicketDbSet.Object);
-
-            var projectsBusinessLogic = new ProjectsBusinessLogic(
-                FakeUserManager.GetFakeUserManager(users, userRoles),
-                new ProjectsRepository(mockDbContext.Object),
-                new TicketsRepository(mockDbContext.Object)
-                );
-
-            return projectsBusinessLogic;
-        }
+        }        
     }
 }
