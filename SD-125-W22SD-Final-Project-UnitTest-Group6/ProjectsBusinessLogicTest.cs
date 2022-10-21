@@ -490,5 +490,28 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
                 projectsBusinessLogic.Delete(-1);
             });
         }
+
+        [TestMethod]
+        public void ShouldReturnProjectCount()
+        {
+            // Arrange                      
+            var testCount = 10;
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+
+            mockProjectsRepository
+                .Setup(x => x.Count())
+                .Returns(testCount);
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act
+            var resultCount = projectsBusinessLogic.Count();
+
+            // Assert
+            Assert.AreEqual(testCount, resultCount);
+        }
     }
 }
