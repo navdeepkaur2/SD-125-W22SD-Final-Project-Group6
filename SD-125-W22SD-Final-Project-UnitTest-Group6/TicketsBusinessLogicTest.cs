@@ -221,7 +221,7 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             var ticketsBusinessLogic = new TicketsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object, mockCommentsRepository.Object);
 
             // Act
-            var resultTickets = ticketsBusinessLogic.Update(testTicket);
+            ticketsBusinessLogic.Update(testTicket);
 
             // Assert
             mockTicketsRepository.Verify(x => x.Update(testTicket), Times.Once());
