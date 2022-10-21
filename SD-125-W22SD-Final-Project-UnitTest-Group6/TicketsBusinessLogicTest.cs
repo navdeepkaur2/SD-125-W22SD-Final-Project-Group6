@@ -493,5 +493,48 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             mockTicketsRepository.Verify(x => x.Update(It.Is((Ticket ticket) => ticket.TicketWatchers.First().Watcher.Id == testUser.Id)), Times.Never());
             mockTicketsRepository.Verify(x => x.Save(), Times.Never());
         }
+
+        [TestMethod]
+        public async Task ShouldRemoveUserFromWatchers()
+        {
+            // Arrange
+            var testUser = new ApplicationUser
+            {
+                Id = "UserId1"
+            };
+            var testTicket = new Ticket
+            {
+                Id = 1,
+                TicketWatchers = new List<TicketWatcher>
+                {
+                    new TicketWatcher
+                    {
+                        Id=  1,
+                        Watcher = testUser
+                    }
+                }
+            };
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+            var mockCommentsRepository = new Mock<CommentsRepository>();
+
+            mockUserManager
+                .Setup(x => x.FindByIdAsync(testUser.Id))
+                .ReturnsAsync(testUser);
+            mockTicketsRepository
+                .Setup(x => x.FindById(testTicket.Id))
+                .Returns(testTicket);
+
+            var ticketsBusinessLogic = new TicketsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object, mockCommentsRepository.Object);
+
+            // Act
+            await ticketsBusinessLogic.RemoveFromWatchers(testUser.Id, testTicket.Id);
+
+            // Assert
+            mockTicketsRepository.Verify(x => x.RemoveWatcher(It.Is((TicketWatcher tw) => tw.Watcher.Id == testUser.Id)), Times.Once());
+            mockTicketsRepository.Verify(x => x.Save(), Times.Once());
+        }
     }
 }
