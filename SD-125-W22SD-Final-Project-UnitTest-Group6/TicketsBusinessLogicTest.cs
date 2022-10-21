@@ -93,5 +93,32 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             mockTicketsRepository.Verify(x => x.Create(testTicket), Times.Never);
             mockTicketsRepository.Verify(x => x.Save(), Times.Never);
         }
+
+        [TestMethod]
+        public void ShouldReturnTicketById()
+        {
+            // Arrange            
+            var testTicket = new Ticket
+            {
+                Id = 1,
+            };
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+            var mockCommentsRepository = new Mock<CommentsRepository>();
+
+            mockTicketsRepository
+                .Setup(x => x.FindById(testTicket.Id))
+                .Returns(testTicket);
+
+            var ticketsBusinessLogic = new TicketsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object, mockCommentsRepository.Object);
+
+            // Act
+            var resultTicket = ticketsBusinessLogic.FindById(testTicket.Id);
+
+            // Assert
+            Assert.AreEqual(testTicket.Id, resultTicket?.Id);
+        }
     }
 }
