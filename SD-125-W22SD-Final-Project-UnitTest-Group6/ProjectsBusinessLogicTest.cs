@@ -659,5 +659,68 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             });
             Assert.IsFalse(testProjectUpdated);
         }
+
+        [TestMethod]
+        public async Task ShouldAddAssignedUsersToProject()
+        {
+            // Arrange                      
+            var testProject = new Project
+            {
+                Id = 1,
+            };
+            var testProjectReadyToUpdate = false;
+            var testProjectUpdated = false;
+            var testAssignedUsers = new List<ApplicationUser>();
+            for (var i = 1; i <= 3; i++)
+            {
+                var testAssignedUser = new ApplicationUser
+                {
+                    Id = $"UserId{i}",
+                    UserName = $"UserName{i}"
+                };
+                testAssignedUsers.Add(testAssignedUser);
+            }
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+
+            mockProjectsRepository
+                .Setup(x => x.FindById(It.Is((int id) => id == testProject.Id)))
+                .Returns(testProject);
+            mockProjectsRepository
+                .Setup(x => x.Update(It.Is((Project project) => project.Id == testProject.Id)))
+                .Callback((Project project) =>
+                {
+                    testProjectReadyToUpdate = true;
+                });
+            mockProjectsRepository
+                .Setup(x => x.Save())
+                .Callback(() =>
+                {
+                    if (testProjectReadyToUpdate)
+                    {
+                        testProjectUpdated = true;
+                    }
+                });
+            mockUserManager
+                .Setup(x => x.FindByIdAsync(It.IsIn(testAssignedUsers.Select(u => u.Id))))
+                .ReturnsAsync((string userId) =>
+                {
+                    return testAssignedUsers.First(u => u.Id == userId);
+                });
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act
+            await projectsBusinessLogic.AddAssignedUsers(testProject.Id, testAssignedUsers.Select(u => u.Id).ToList());
+
+            // Assert
+            Assert.IsTrue(testProjectUpdated);
+            foreach (var resultUserProject in testProject.AssignedTo)
+            {
+                Assert.IsTrue(testAssignedUsers.Select(u => u.Id).Contains(resultUserProject.UserId));
+            }
+        }
     }
 }
