@@ -147,5 +147,37 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             // Assert
             Assert.IsNull(resultTicket);
         }
+
+        [TestMethod]
+        public void ShouldReturnAllTickets()
+        {
+            // Arrange            
+            var testTickets = new List<Ticket>();
+            for (var i = 1; i <= 5; i++)
+            {
+                var testTicket = new Ticket
+                {
+                    Id = i
+                };
+                testTickets.Add(testTicket);
+            }
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+            var mockCommentsRepository = new Mock<CommentsRepository>();
+
+            mockTicketsRepository
+                .Setup(x => x.GetAll())
+                .Returns(testTickets);
+
+            var ticketsBusinessLogic = new TicketsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object, mockCommentsRepository.Object);
+
+            // Act
+            var resultTickets = ticketsBusinessLogic.GetAll();
+
+            // Assert
+            Assert.AreEqual(testTickets.Count, resultTickets.Count);
+        }
     }
 }
