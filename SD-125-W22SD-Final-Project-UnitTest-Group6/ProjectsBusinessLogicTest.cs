@@ -41,6 +41,8 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             var mockProjectsRepository = new Mock<ProjectsRepository>();
             var mockTicketsRepository = new Mock<TicketsRepository>();
 
+            mockUserManager.Setup(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).Callback(() => { });
+
             mockUserManager
                 .Setup(x => x.FindByIdAsync(testUser.Id))
                 .ReturnsAsync(testUser);
@@ -376,6 +378,117 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             Assert.IsTrue(ticketsDeleted);
             Assert.IsTrue(assignedUsersDeleted);
             Assert.IsTrue(projectDeleted);
+        }
+
+        [TestMethod]
+        public void ShouldThrowExceptionWhenDeletingProjectAndNotFound()
+        {
+            // Arrange
+            var testProject = new Project
+            {
+                Id = 1,
+                ProjectName = "Project1"
+            };
+            var testTickets = new List<Ticket>();
+            for (var i = 1; i <= 5; i++)
+            {
+                var testTicket = new Ticket
+                {
+                    Id = i,
+                    Title = $"Ticket{i}",
+                    Body = $"Body{i}",
+                    RequiredHours = 2,
+                    TicketPriority = Ticket.Priority.Medium,
+                    Completed = true
+                };
+                testTickets.Add(testTicket);
+            }
+            var testAssignedUsers = new List<ApplicationUser>();
+            for (var i = 1; i <= 5; i++)
+            {
+                var testUser = new ApplicationUser
+                {
+                    Id = $"UserId{i}",
+                    UserName = $"UserName{i}"
+                };
+                testAssignedUsers.Add(testUser);
+            }
+            var testUserProjects = new List<UserProject>();
+            for (var i = 1; i <= 5; i++)
+            {
+                var testUserProject = new UserProject
+                {
+                    Id = i,
+                    UserId = $"UserId{i}",
+                    ProjectId = 1
+                };
+                testUserProjects.Add(testUserProject);
+            }
+            testProject.Tickets = testTickets;
+            testProject.AssignedTo = testUserProjects;
+
+            var ticketsReadyToDeleted = false;
+            var assignedUsersReadyToDeleted = false;
+            var projectReadyToDeleted = false;
+            var ticketsDeleted = false;
+            var assignedUsersDeleted = false;
+            var projectDeleted = false;
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+
+            mockProjectsRepository
+                .Setup(x => x.FindById(It.Is((int id) => id == testProject.Id)))
+                .Returns(testProject);
+            mockProjectsRepository
+                .Setup(x => x.RemoveAssignedUser(It.IsAny<int>(), It.IsAny<string>()))
+                .Callback((int projectId, string userId) =>
+                {
+                    assignedUsersReadyToDeleted = true;
+                });
+            mockProjectsRepository
+               .Setup(x => x.Delete(It.IsAny<Project>()))
+               .Callback((Project project) =>
+               {
+                   projectReadyToDeleted = true;
+               });
+            mockProjectsRepository
+                .Setup(x => x.Save())
+                .Callback(() =>
+                {
+                    if (assignedUsersReadyToDeleted)
+                    {
+                        assignedUsersDeleted = true;
+                    }
+                    if (projectReadyToDeleted)
+                    {
+                        projectDeleted = true;
+                    }
+                });
+            mockTicketsRepository
+                .Setup(x => x.Delete(It.IsAny<Ticket>()))
+                .Callback((Ticket ticket) =>
+                {
+                    ticketsReadyToDeleted = true;
+                });
+            mockTicketsRepository
+                .Setup(x => x.Save())
+                .Callback(() =>
+                {
+                    if (ticketsReadyToDeleted)
+                    {
+                        ticketsDeleted = true;
+                    }
+                });
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act & Assert
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                projectsBusinessLogic.Delete(-1);
+            });
         }
     }
 }
