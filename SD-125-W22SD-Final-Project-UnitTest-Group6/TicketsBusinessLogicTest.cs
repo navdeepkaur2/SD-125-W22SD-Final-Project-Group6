@@ -418,5 +418,42 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             mockCommentsRepository.Verify(x => x.Create(It.Is((Comment comment) => comment.Ticket.Id == testTicket.Id)), Times.Never());
             mockCommentsRepository.Verify(x => x.Save(), Times.Never());
         }
+
+        [TestMethod]
+        public async Task ShouldAddUserToWatchers()
+        {
+            // Arrange
+            var testUser = new ApplicationUser
+            {
+                Id = "UserId1"
+            };
+            var testTicket = new Ticket
+            {
+                Id = 1
+            };
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+            var mockCommentsRepository = new Mock<CommentsRepository>();
+
+            mockUserManager
+                .Setup(x => x.FindByIdAsync(testUser.Id))
+                .ReturnsAsync(testUser);
+            mockTicketsRepository
+                .Setup(x => x.FindById(testTicket.Id))
+                .Returns(testTicket);
+
+            var ticketsBusinessLogic = new TicketsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object, mockCommentsRepository.Object);
+
+            // Act
+            await ticketsBusinessLogic.AddToWatchers(testUser.Id, testTicket.Id);
+
+            // Assert
+            mockTicketsRepository.Verify(x => x.Update(It.Is((Ticket ticket) => ticket.TicketWatchers.Count == 1)), Times.Once());
+            mockTicketsRepository.Verify(x => x.Update(It.Is((Ticket ticket) => ticket.TicketWatchers.First().Ticket.Id == testTicket.Id)), Times.Once());
+            mockTicketsRepository.Verify(x => x.Update(It.Is((Ticket ticket) => ticket.TicketWatchers.First().Watcher.Id == testUser.Id)), Times.Once());
+            mockTicketsRepository.Verify(x => x.Save(), Times.Once());
+        }
     }
 }
