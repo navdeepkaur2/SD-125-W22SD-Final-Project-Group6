@@ -227,5 +227,34 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             mockTicketsRepository.Verify(x => x.Update(testTicket), Times.Once());
             mockTicketsRepository.Verify(x => x.Save(), Times.Once());
         }
+
+
+        [TestMethod]
+        public void ShouldDeleteTicket()
+        {
+            // Arrange            
+            var testTicket = new Ticket
+            {
+                Id = 1
+            };
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+            var mockCommentsRepository = new Mock<CommentsRepository>();
+
+            mockTicketsRepository
+                .Setup(x => x.FindById(testTicket.Id))
+                .Returns(testTicket);
+
+            var ticketsBusinessLogic = new TicketsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object, mockCommentsRepository.Object);
+
+            // Act
+            ticketsBusinessLogic.Delete(testTicket.Id);
+
+            // Assert
+            mockTicketsRepository.Verify(x => x.Delete(It.Is((Ticket ticket) => ticket.Id == testTicket.Id)), Times.Once());
+            mockTicketsRepository.Verify(x => x.Save(), Times.Once());
+        }
     }
 }

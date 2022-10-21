@@ -151,7 +151,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                 {
                     ApplicationUser user = await _userBusinessLogic.FindById(userId);
                     ticket.Owner = user;
-                    await _ticketsBusinessLogic.Update(ticket);
+                    _ticketsBusinessLogic.Update(ticket);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -207,7 +207,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
 
                     ticket.RequiredHours = (int)hrs;
 
-                    await _ticketsBusinessLogic.Update(ticket);
+                    _ticketsBusinessLogic.Update(ticket);
 
                     return RedirectToAction("Details", new { id });
                 }
@@ -276,7 +276,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                     }
 
                     ticket.Completed = true;
-                    await _ticketsBusinessLogic.Update(ticket);
+                    _ticketsBusinessLogic.Update(ticket);
 
                     return RedirectToAction("Details", new { id });
                 }
@@ -303,7 +303,7 @@ namespace SD_340_W22SD_Final_Project_Group6.Controllers
                     }
 
                     ticket.Completed = false;
-                    await _ticketsBusinessLogic.Update(ticket);
+                    _ticketsBusinessLogic.Update(ticket);
 
                     return RedirectToAction("Details", new { id });
                 }
