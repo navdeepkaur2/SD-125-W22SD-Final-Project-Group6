@@ -513,5 +513,31 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             // Assert
             Assert.AreEqual(testCount, resultCount);
         }
+
+        [TestMethod]
+        public void ShouldReturnTrueWhenProjectExists()
+        {
+            // Arrange                      
+            var testProject = new Project
+            {
+                Id = 1
+            };
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+
+            mockProjectsRepository
+                .Setup(x => x.FindById(It.Is((int id) => id == testProject.Id)))
+                .Returns(testProject);
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act
+            var resultExists = projectsBusinessLogic.Exists(testProject.Id);
+
+            // Assert
+            Assert.IsTrue(resultExists);
+        }
     }
 }
