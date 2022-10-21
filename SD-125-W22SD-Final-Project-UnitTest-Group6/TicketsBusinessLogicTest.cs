@@ -352,7 +352,7 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             var testTicket = new Ticket
             {
                 Id = 1
-            };            
+            };
             var testDescription = "Description";
 
             var mockUserManager = new Mock<FakeUserManager>();
@@ -377,6 +377,46 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             mockCommentsRepository.Verify(x => x.Create(It.Is((Comment comment) => comment.Description == testDescription)), Times.Once());
             mockCommentsRepository.Verify(x => x.Create(It.Is((Comment comment) => comment.Ticket.Id == testTicket.Id)), Times.Once());
             mockCommentsRepository.Verify(x => x.Save(), Times.Once());
+        }
+
+
+        [TestMethod]
+        public async Task ShouldThrowExceptionWhenAddingCommentAndTicketNotFound()
+        {
+            // Arrange
+            var testUser = new ApplicationUser
+            {
+                Id = "UserId1"
+            };
+            var testTicket = new Ticket
+            {
+                Id = 1
+            };
+            var testDescription = "Description";
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+            var mockCommentsRepository = new Mock<CommentsRepository>();
+
+            mockUserManager
+                .Setup(x => x.FindByIdAsync(testUser.Id))
+                .ReturnsAsync(testUser);
+            mockTicketsRepository
+                .Setup(x => x.FindById(testTicket.Id))
+                .Returns(testTicket);
+
+            var ticketsBusinessLogic = new TicketsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object, mockCommentsRepository.Object);
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () =>
+            {
+                await ticketsBusinessLogic.AddComment(testUser.Id, 2, testDescription);
+            });
+            mockCommentsRepository.Verify(x => x.Create(It.Is((Comment comment) => comment.CreatedBy.Id == testUser.Id)), Times.Never());
+            mockCommentsRepository.Verify(x => x.Create(It.Is((Comment comment) => comment.Description == testDescription)), Times.Never());
+            mockCommentsRepository.Verify(x => x.Create(It.Is((Comment comment) => comment.Ticket.Id == testTicket.Id)), Times.Never());
+            mockCommentsRepository.Verify(x => x.Save(), Times.Never());
         }
     }
 }
