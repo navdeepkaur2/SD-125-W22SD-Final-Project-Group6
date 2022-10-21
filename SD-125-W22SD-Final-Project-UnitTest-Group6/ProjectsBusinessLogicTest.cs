@@ -565,5 +565,52 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             // Assert
             Assert.IsFalse(resultExists);
         }
+
+        [TestMethod]
+        public void ShouldRenameProject()
+        {
+            // Arrange                      
+            var testProject = new Project
+            {
+                Id = 1,
+                ProjectName = "Project1"
+            };
+            var testProjectReadyToUpdate = false;
+            var testProjectUpdated = false;
+            var testProjectNewName = "Project2";
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+
+            mockProjectsRepository
+                .Setup(x => x.FindById(It.Is((int id) => id == testProject.Id)))
+                .Returns(testProject);
+            mockProjectsRepository
+                .Setup(x => x.Update(It.Is((Project project) => project.Id == testProject.Id)))
+                .Callback((Project project) =>
+                {
+                    testProjectReadyToUpdate = true;
+                });
+            mockProjectsRepository
+                .Setup(x => x.Save())
+                .Callback(() =>
+                {
+                    if (testProjectReadyToUpdate)
+                    {
+                        testProjectUpdated = true;
+                        testProject.ProjectName = testProjectNewName;
+                    }
+                });
+
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+
+            // Act
+            projectsBusinessLogic.RenameProject(testProject.Id, testProjectNewName);
+
+            // Assert
+            Assert.IsTrue(testProjectUpdated);
+            Assert.AreEqual(testProjectNewName, testProject.ProjectName);
+        }
     }
 }
