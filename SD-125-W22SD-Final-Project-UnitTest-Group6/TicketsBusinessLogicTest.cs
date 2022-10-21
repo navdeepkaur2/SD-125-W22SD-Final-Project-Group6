@@ -50,8 +50,8 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             // Assert
             Assert.AreEqual(testProject.Id, testTicket.Project?.Id);
             Assert.AreEqual(testUser.Id, testTicket.Owner?.Id);
-            mockTicketsRepository.Verify(x => x.Create(testTicket), Times.Once);
-            mockTicketsRepository.Verify(x => x.Save(), Times.Once);
+            mockTicketsRepository.Verify(x => x.Create(testTicket), Times.Once());
+            mockTicketsRepository.Verify(x => x.Save(), Times.Once());
         }
 
         [TestMethod]
@@ -90,8 +90,8 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             {
                 await ticketsBusinessLogic.Create(testTicket, 2, testUser.Id);
             });
-            mockTicketsRepository.Verify(x => x.Create(testTicket), Times.Never);
-            mockTicketsRepository.Verify(x => x.Save(), Times.Never);
+            mockTicketsRepository.Verify(x => x.Create(testTicket), Times.Never());
+            mockTicketsRepository.Verify(x => x.Save(), Times.Never());
         }
 
         [TestMethod]
