@@ -782,5 +782,28 @@ namespace SD_125_W22SD_Final_Project_UnitTest_Group6
             });
             Assert.IsFalse(testProjectUpdated);
         }
+
+        [TestMethod]
+        public void ShouldRemoveAssignedUser()
+        {
+            // Arrange
+            var testProjectId = 1;
+            var testUserId = "UserId1";
+
+            var mockUserManager = new Mock<FakeUserManager>();
+            var mockProjectsRepository = new Mock<ProjectsRepository>();
+            var mockTicketsRepository = new Mock<TicketsRepository>();
+            
+            var projectsBusinessLogic = new ProjectsBusinessLogic(mockUserManager.Object, mockProjectsRepository.Object, mockTicketsRepository.Object);
+            
+            // Act
+            projectsBusinessLogic.RemoveAssignedUser(testProjectId, testUserId);
+
+            // Assert
+            mockProjectsRepository
+                .Verify(x => x.RemoveAssignedUser(testProjectId, testUserId), Times.Once);
+            mockProjectsRepository
+                .Verify(x => x.Save(), Times.Once);
+        }
     }
 }
